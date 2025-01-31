@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 
 class WishlistScreen extends StatelessWidget {
@@ -30,63 +28,62 @@ class WishlistScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: TabBarView(
-                children: [
-                  // Empty Items Section
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.favorite_border,
-                          size: 80,
-                          color: isDarkMode
-                              ? Colors.grey.shade500
-                              : Colors.grey.shade400,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // TabBarView
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    // Centered Content with Scroll Support for Landscape
+                    SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: MediaQuery.of(context).size.height -
+                              (MediaQuery.of(context).padding.top + 56 + 48), // Account for AppBar and TabBar
                         ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'It is empty here.',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color:
-                                isDarkMode ? Colors.grey.shade300 : Colors.grey,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.favorite_border,
+                                size: 80,
+                                color: isDarkMode
+                                    ? Colors.grey.shade500
+                                    : Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                'It is empty here.',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: isDarkMode
+                                      ? Colors.grey.shade300
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.pink.shade200,
-                            foregroundColor:
-                                isDarkMode ? Colors.white : Colors.black,
-                          ),
-                          child: const Text('Remove'),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            // "Heart It" section
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100, // Light background
-                border: const Border(
-                  top: BorderSide(
-                    color: Colors.grey,
-                    width: 1,
-                  ), // Top border
+                  ],
                 ),
               ),
-              child: SingleChildScrollView(
-                // Added SingleChildScrollView
+              // "Heart It" Section
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100, // Light background
+                  border: const Border(
+                    top: BorderSide(
+                      color: Colors.grey,
+                      width: 1,
+                    ), // Top border
+                  ),
+                ),
                 child: Column(
                   children: [
                     Text(
@@ -103,12 +100,11 @@ class WishlistScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black54),
                     ),
-                    // ...existing code...
                   ],
                 ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
         // Bottom Navigation Bar
         bottomNavigationBar: BottomAppBar(
@@ -118,10 +114,8 @@ class WishlistScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment:
                   MediaQuery.of(context).orientation == Orientation.portrait
-                      ? MainAxisAlignment
-                          .spaceAround // Spread icons in portrait mode
-                      : MainAxisAlignment
-                          .spaceEvenly, // Add more spacing in landscape mode
+                      ? MainAxisAlignment.spaceAround
+                      : MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
                   icon: const Icon(Icons.home, color: Colors.black),

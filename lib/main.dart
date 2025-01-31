@@ -45,7 +45,7 @@ class MirrorMeApp extends StatelessWidget {
         '/description': (context) => const DescriptionScreen(),
         '/cart': (context) => const CartScreen(),
         '/profile': (context) => const ProfileScreen(), // ProfileScreen route
-        '/wishlist': (context) => const WishlistScreen(),
+        '/wishlist': (context) => WishlistScreen(), // Pass required parameter
       },
       initialRoute: '/', // Start at the Login screen
     );
