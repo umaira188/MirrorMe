@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final VoidCallback toggleTheme; // Added toggleTheme callback
+
+  const LoginScreen({super.key, required this.toggleTheme});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -22,6 +24,17 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login'),
+        backgroundColor: Colors.pink,
+        actions: [
+          // Theme Toggle Button
+          IconButton(
+            icon: const Icon(Icons.brightness_6), // Icon for light/dark toggle
+            onPressed: widget.toggleTheme, // Calls the toggleTheme callback
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           // Background
