@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart'; // Adjust if needed
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,25 +13,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
-  void _register() {
+  bool _isLoading = false;
+
+  Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
-      // Navigate to the home screen after validation
-      Navigator.pushNamed(context, '/home');
+      setState(() => _isLoading = true);
+
+      final error = await AuthService().register(
+        _nameController.text.trim(),
+        _emailController.text.trim(),
+        _passwordController.text,
+        _confirmPasswordController.text,
+      );
+
+      setState(() => _isLoading = false);
+
+      if (error == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registered successfully')),
+        );
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+      }
     }
+  }
+
+  InputDecoration buildInputDecoration(String hintText, IconData icon) {
+    return InputDecoration(
+      prefixIcon: Icon(icon, color: Colors.pink),
+      hintText: hintText,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(color: Colors.pink),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(color: Colors.pink),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(30),
+        borderSide: const BorderSide(color: Colors.pink, width: 2),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Register'),
+        backgroundColor: Colors.pink,
+      ),
       body: Stack(
         children: [
-          // Background Gradient
+          // Gradient Background
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFEED9EA), Color(0xFFFADCE3), Color(0xFFFCE4EC)],
+                colors: [
+                  Color(0xFFFDE2E4),
+                  Color(0xFFFADCE3),
+                  Color(0xFFFCE4EC),
+                ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -38,173 +89,78 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           SafeArea(
             child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 30),
-
-                    // Welcome Text
+                    const SizedBox(height: 20),
                     const Text(
-                      'Register',
+                      'Create an Account',
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Create your new account',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
+                    const SizedBox(height: 30),
+
+                    // Name Field
+                    TextFormField(
+                      controller: _nameController,
+                      style: const TextStyle(color: Colors.pink), // 👈 Add this
+                      decoration: buildInputDecoration('Name', Icons.person),
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Enter your name' : null,
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
 
-                    // Form
-                    Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          // Name Field
-                          TextFormField(
-                            controller: _nameController,
-                            style: const TextStyle(color: Colors.pink),
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.person, color: Colors.pink),
-                              hintText: 'Full Name',
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink, width: 2),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your name';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
+                    // Email Field
+                    TextFormField(
+                      controller: _emailController,
+                      style: const TextStyle(color: Colors.pink), // 👈 Add this
+                      decoration: buildInputDecoration('Email', Icons.email),
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Enter your email' : null,
+                    ),
+                    const SizedBox(height: 20),
 
-                          // Email Field
-                          TextFormField(
-                            controller: _emailController,
-                            style: const TextStyle(color: Colors.pink),
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.email, color: Colors.pink),
-                              hintText: 'Email',
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink, width: 2),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
+                    // Password Field
+                    TextFormField(
+                      controller: _passwordController,
+                      style: const TextStyle(color: Colors.pink), // 👈 Add this
+                      obscureText: true,
+                      decoration: buildInputDecoration('Password', Icons.lock),
+                      validator: (value) =>
+                          value == null || value.length < 6 ? 'Min 6 characters' : null,
+                    ),
+                    const SizedBox(height: 20),
 
-                          // Password Field
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            style: const TextStyle(color: Colors.pink),
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.lock, color: Colors.pink),
-                              hintText: 'Password',
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink, width: 2),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
+                    // Confirm Password
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      style: const TextStyle(color: Colors.pink), // 👈 Add this
+                      obscureText: true,
+                      decoration: buildInputDecoration('Confirm Password', Icons.lock_outline),
+                      validator: (value) => value != _passwordController.text
+                          ? 'Passwords do not match'
+                          : null,
+                    ),
+                    const SizedBox(height: 30),
 
-                          // Phone Field
-                          TextFormField(
-                            controller: _phoneController,
-                            style: const TextStyle(color: Colors.pink),
-                            decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.phone, color: Colors.pink),
-                              hintText: 'Phone',
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink, width: 2),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your phone number';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 30),
-
-                          // Register Button
-                          GestureDetector(
-                            onTap: _register,
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              decoration: BoxDecoration(
-                                color: Colors.pink,
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: const Center(
+                    // Register Button
+                    GestureDetector(
+                      onTap: _isLoading ? null : _register,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        decoration: BoxDecoration(
+                          color: Colors.pink,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: _isLoading
+                            ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                            : const Center(
                                 child: Text(
                                   'Register',
                                   style: TextStyle(
@@ -214,14 +170,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                     const SizedBox(height: 20),
 
-                    // Login Redirect
+                    // Already Registered?
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -231,10 +184,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pop(context); // Navigate back to Login screen
+                           Navigator.pushNamed(context, '/');
                           },
                           child: const Text(
-                            'Sign in',
+                            'Login',
                             style: TextStyle(
                               color: Colors.pink,
                               fontWeight: FontWeight.bold,
@@ -243,7 +196,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 30),
                   ],
                 ),
               ),

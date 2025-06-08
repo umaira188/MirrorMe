@@ -7,13 +7,15 @@ import 'description.dart';
 import 'cart_checkout.dart';
 import 'profile.dart'; // Import the profile screen
 import 'wishlist.dart'; // Import Wishlist Screen
+import 'models/product.dart';
 
 /// A global cart list to store products the user adds.
 List<Map<String, dynamic>> globalCart = [];
 
 /// Global wishlist list to store products added to the wishlist.
 List<Map<String, dynamic>> globalWishlist = [];
-
+List<Product> globalCart1 = [];
+List<Product> globalWishlist1 = [];
 void main() {
   runApp(const MirrorMeApp());
 }
@@ -62,9 +64,11 @@ class _MirrorMeAppState extends State<MirrorMeApp> {
 
           // Named routes for easy navigation
           routes: {
-            '/': (context) => LoginScreen(toggleTheme: _toggleTheme), // Pass toggleTheme
+           '/': (context) => const LoginScreen(),
+
             '/register': (context) => const RegisterScreen(),
             '/home': (context) => const HomeScreen(), // Home screen route
+            '/dashboard': (context) => const HomeScreen(), // 💡 New route
             '/products': (context) => const ProductsScreen(),
             '/description': (context) => const DescriptionScreen(),
             '/cart': (context) => const CartScreen(),

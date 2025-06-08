@@ -65,41 +65,7 @@ Widget build(BuildContext context) {
      ],
   ),
          
-       // Navigation Drawer
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.pink.shade200,
-              ),
-              child: Column(
-                children: [
-                  Image.asset(
-                    'Assets/images/LOGO.jpg', // Drawer Logo
-                    height: 60,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Mirror Me',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            _buildDrawerItem(Icons.home, 'Home', '/home', context),
-            _buildDrawerItem(Icons.grid_view, 'Products', '/products', context),
-            _buildDrawerItem(Icons.favorite_border, 'Wishlist', '/wishlist', context),
-            _buildDrawerItem(Icons.person, 'Profile', '/profile', context),
-            _buildDrawerItem(Icons.shopping_cart, 'Cart', '/cart', context),
-          ],
-        ),
-      ),
+       
                // Body
       body: LayoutBuilder(
         builder: (context, constraints) {

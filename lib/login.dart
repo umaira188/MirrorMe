@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mirror_me/services/auth_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'admin_dashboard.dart';
+import 'home.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback toggleTheme; // Added toggleTheme callback
-
-  const LoginScreen({super.key, required this.toggleTheme});
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -11,13 +13,36 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
+  Future<void> handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      // Navigate to the home screen after validation
-      Navigator.pushNamed(context, '/home');
+      final error = await _authService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (error == null) {
+        final role = await _storage.read(key: 'role');
+        if (role == 'admin') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminDashboard()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error)),
+        );
+      }
     }
   }
 
@@ -27,21 +52,14 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         title: const Text('Login'),
         backgroundColor: Colors.pink,
-        actions: [
-          // Theme Toggle Button
-          IconButton(
-            icon: const Icon(Icons.brightness_6), // Icon for light/dark toggle
-            onPressed: widget.toggleTheme, // Calls the toggleTheme callback
-          ),
-        ],
       ),
       body: Stack(
         children: [
-          // Background
+          // Background gradient
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFFEED9EA), Color(0xFFFADCE3), Color(0xFFFCE4EC)], // Matching gradient colors
+                colors: [Color(0xFFEED9EA), Color(0xFFFADCE3), Color(0xFFFCE4EC)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -55,50 +73,35 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 20),
-
-                    // Picture Section
                     ClipRRect(
                       borderRadius: BorderRadius.circular(30),
                       child: Image.asset(
-                        'Assets/images/login picture.jpg', // Replace with your image path
+                        'Assets/images/login picture.jpg',
                         height: 200,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
                     ),
                     const SizedBox(height: 30),
-
-                    // Welcome Text
-                    const Text(
-                      'Welcome Back',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
+                    const Text('Welcome Back',
+                        style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black)),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Login to your account',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
-                    ),
+                    const Text('Login to your account',
+                        style: TextStyle(fontSize: 16, color: Colors.black54)),
                     const SizedBox(height: 40),
-
-                    // Form
                     Form(
                       key: _formKey,
                       child: Column(
                         children: [
-                          // Name Field
                           TextFormField(
-                            controller: _nameController,
+                            controller: _emailController,
                             style: const TextStyle(color: Colors.pink),
                             decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.person, color: Colors.pink),
-                              hintText: 'Name',
+                              prefixIcon: const Icon(Icons.email, color: Colors.pink),
+                              hintText: 'Email',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(
@@ -111,19 +114,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink, width: 2),
+                                borderSide:
+                                    const BorderSide(color: Colors.pink, width: 2),
                               ),
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your name';
-                              }
-                              return null;
-                            },
+                            validator: (value) =>
+                                value == null || value.isEmpty ? 'Enter email' : null,
                           ),
                           const SizedBox(height: 20),
-
-                          // Password Field
                           TextFormField(
                             controller: _passwordController,
                             obscureText: true,
@@ -143,21 +141,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                borderSide: const BorderSide(color: Colors.pink, width: 2),
+                                borderSide:
+                                    const BorderSide(color: Colors.pink, width: 2),
                               ),
                             ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
-                              }
-                              return null;
-                            },
+                            validator: (value) => value == null || value.isEmpty
+                                ? 'Enter password'
+                                : null,
                           ),
                           const SizedBox(height: 30),
-
-                          // Login Button
                           GestureDetector(
-                            onTap: _login,
+                            onTap: handleLogin,
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(vertical: 15),
@@ -169,10 +163,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Text(
                                   'Login',
                                   style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ),
@@ -181,25 +174,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Register Redirect
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          "Don't have an account? ",
-                          style: TextStyle(color: Colors.black54),
-                        ),
+                        const Text("Don't have an account? ",
+                            style: TextStyle(color: Colors.black54)),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/register');
-                          },
+                          onTap: () => Navigator.pushNamed(context, '/register'),
                           child: const Text(
                             'Sign up',
                             style: TextStyle(
-                              color: Colors.pink,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                color: Colors.pink, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ],
